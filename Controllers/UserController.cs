@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DotNetCoreRestApi.BusinessManager;
+using DotNetCoreRestApi.DTO;
 using DotNetCoreRestApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,31 +16,43 @@ namespace DotNetCoreRestApi.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-      
+
         private readonly IUserDetails _userDetails;
-        public UserController(IUserDetails userDetails)
+        private readonly IMapper _mapper;
+
+        public UserController(IUserDetails userDetails, IMapper mapper)
         {
-            _userDetails=userDetails;
-            
+            _userDetails = userDetails;
+            _mapper = mapper;
+
         }
         [HttpGet]
-        public ActionResult<IEnumerable<UserData>> GetAll()
+        public ActionResult<IEnumerable<UserDetailsReadDTO>> GetAll()
         {
-            return Ok(_userDetails.FetchUsers());
+            return Ok(_mapper.Map<IEnumerable<UserDetailsReadDTO>>(_userDetails.FetchUsers()));
         }
 
         // GET api/<ValuesController>/5
-        [HttpGet("{id}")]
-        public ActionResult< UserData> GetById(int id)
+        [HttpGet("{id}",Name = "GetById")]
+        public ActionResult<UserDetailsReadDTO> GetById(int id)
         {
-            return Ok(_userDetails.GetUserById(id));
+            var userData = _userDetails.GetUserById(id);
+            if (userData != null)
+                return Ok(_mapper.Map<UserDetailsReadDTO>(userData));
+            return NotFound(id);
         }
 
-        //// POST api/<ValuesController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
+        // POST api/<ValuesController>
+        [HttpPost]
+        public ActionResult<UserDetailsReadDTO> CreateUserData(UserDetailsCreateDTO user)
+        {
+            var userdata = _mapper.Map<UserData>(user);
+            _userDetails.CreateUserData(userdata);
+            _userDetails.SaveChanges();
+            var userDataDto = _mapper.Map<UserDetailsReadDTO>(userdata);
+
+            return CreatedAtRoute(nameof(GetById),new { Id=userDataDto.ID},userDataDto);
+        }
 
         //// PUT api/<ValuesController>/5
         //[HttpPut("{id}")]

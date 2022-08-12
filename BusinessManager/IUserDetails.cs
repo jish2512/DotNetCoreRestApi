@@ -10,5 +10,7 @@ namespace DotNetCoreRestApi.BusinessManager
     {
         IEnumerable<UserData> FetchUsers();
         UserData GetUserById(int id);
+        void CreateUserData(UserData user);
+        bool SaveChanges();
     }
 }

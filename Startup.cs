@@ -11,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using DotNetCoreRestApi.DBContexts;
+using AutoMapper;
 
 namespace DotNetCoreRestApi
 {
@@ -26,15 +29,15 @@ namespace DotNetCoreRestApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<UserContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("ZipperConnection")));
             services.AddControllers();
-
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             //3types to add services AddSingelton(same for everyrequest)--
             //AddScoped(create  once per client request
             //AddTransient(new instance everytime)
+            //services.AddTransient<IUserDetails, UserDetails>();
 
-            //services.AddScoped<IUserDetails, UserDetails>();
-
-            services.AddTransient<IUserDetails,UserDetails>();
+            services.AddScoped<IUserDetails, UserDetails>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
