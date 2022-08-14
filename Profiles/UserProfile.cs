@@ -14,6 +14,8 @@ namespace DotNetCoreRestApi.Profiles
         {
             CreateMap<UserData, UserDetailsReadDTO>();
             CreateMap<UserDetailsCreateDTO, UserData>();
+            CreateMap<UserDetailsUpdateDTO, UserData>();
+            CreateMap<UserData,UserDetailsUpdateDTO>();
         }
     }
 }

@@ -12,5 +12,8 @@ namespace DotNetCoreRestApi.BusinessManager
         UserData GetUserById(int id);
         void CreateUserData(UserData user);
         bool SaveChanges();
+        void UpdateUserData(UserData user);
+        void DeleteUserData(UserData user);
+        void DeleleAllUsers();
     }
 }

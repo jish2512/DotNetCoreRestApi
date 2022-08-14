@@ -23,6 +23,19 @@ namespace DotNetCoreRestApi.BusinessManager
             _context.UserDatas.Add(user);
         }
 
+        public void DeleleAllUsers()
+        {
+            var users= _context.UserDatas.ToList();
+            _context.UserDatas.RemoveRange(users);
+        }
+
+        public void DeleteUserData(UserData user)
+        {
+            if (user == null)
+                throw new ArgumentNullException();
+            _context.UserDatas.Remove(user);
+        }
+
         public IEnumerable<UserData> FetchUsers()
         {
             return _context.UserDatas.ToList();
@@ -36,6 +49,11 @@ namespace DotNetCoreRestApi.BusinessManager
         public bool SaveChanges()
         {
             return (_context.SaveChanges() > 0);
+        }
+
+        public void UpdateUserData(UserData user)
+        {
+            //nothing
         }
     }
 }

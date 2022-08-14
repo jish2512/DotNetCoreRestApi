@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotNetCoreRestApi.DTO
 {
-    public class UserDetailsCreateDTO
+    public class UserDetailsUpdateDTO
     {
         [Required]
         [MaxLength(250)]

@@ -7,6 +7,7 @@ using DotNetCoreRestApi.BusinessManager;
 using DotNetCoreRestApi.DTO;
 using DotNetCoreRestApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -33,7 +34,7 @@ namespace DotNetCoreRestApi.Controllers
         }
 
         // GET api/<ValuesController>/5
-        [HttpGet("{id}",Name = "GetById")]
+        [HttpGet("{id}", Name = "GetById")]
         public ActionResult<UserDetailsReadDTO> GetById(int id)
         {
             var userData = _userDetails.GetUserById(id);
@@ -51,19 +52,60 @@ namespace DotNetCoreRestApi.Controllers
             _userDetails.SaveChanges();
             var userDataDto = _mapper.Map<UserDetailsReadDTO>(userdata);
 
-            return CreatedAtRoute(nameof(GetById),new { Id=userDataDto.ID},userDataDto);
+            return CreatedAtRoute(nameof(GetById), new { Id = userDataDto.ID }, userDataDto);
         }
 
-        //// PUT api/<ValuesController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
+        // PUT api/<ValuesController>/5
+        [HttpPut("{id}")]
+        public ActionResult Put(int id, UserDetailsUpdateDTO user)
+        {
+            var userData = _userDetails.GetUserById(id);
+            if (userData == null)
+                return NotFound();
+            _mapper.Map(user, userData);
+            _userDetails.UpdateUserData(userData);
+            _userDetails.SaveChanges();
+            return NoContent();
+        }
 
-        //// DELETE api/<ValuesController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+        // Patch api/<ValuesController>/5
+        [HttpPatch("{id}")]
+        public ActionResult Patch(int id, JsonPatchDocument<UserDetailsUpdateDTO> patchDoc)
+        {
+            var userData = _userDetails.GetUserById(id);
+            if (userData == null)
+                return NotFound();
+            var patchData = _mapper.Map<UserDetailsUpdateDTO>(userData);
+            patchDoc.ApplyTo(patchData, ModelState);
+            if (!TryValidateModel(patchData))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(patchData, userData);
+            _userDetails.UpdateUserData(userData);
+            _userDetails.SaveChanges();
+            return NoContent();
+        }
+
+        // DELETE api/<ValuesController>/5
+        [HttpDelete("{id}")]
+        public ActionResult Delete(int id)
+        {
+            var userData = _userDetails.GetUserById(id);
+            if (userData == null)
+                return NotFound();
+            _userDetails.DeleteUserData(userData);
+            _userDetails.SaveChanges();
+            return NoContent();
+        }
+
+        [HttpDelete]
+        public ActionResult DeleteAll()
+        {
+            _userDetails.DeleleAllUsers();
+            _userDetails.SaveChanges();
+            return NoContent();
+        }
     }
 }
